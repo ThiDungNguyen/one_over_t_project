@@ -1,0 +1,120 @@
+;       generated from expanded_ensemble_mdpfile() on Tue Jul 23 15:13:11 2024 
+;
+;
+; Run control
+integrator               = md-vv
+tinit                    = 0
+dt                       = 0.0020
+nsteps                   = 20000000 ; 20ns in total
+comm-mode                = Linear
+nstcomm                  = 1
+
+; Output control
+nstlog                   = 2500
+nstcalcenergy            = 1
+nstenergy                = 250000
+nstxout-compressed       = 250000        ; save xtc coordinates
+nstxout                  = 2500000       ; save all coordinates
+nstvout                  = 2500000       ; save all velocities
+compressed-x-precision   = 1000
+
+; This selects the subset of atoms for the .xtc file. You can
+; select multiple groups. By default all atoms will be written.
+compressed-x-grps        = LIG
+
+; Selection of energy groups
+energygrps               = System
+; Neighborsearching and short-range nonbonded interactions
+nstlist                  = 10
+ns_type                  = grid
+pbc                      = xyz
+rlist                    = 0.9
+
+; Electrostatics
+cutoff-scheme            = verlet
+coulombtype              = PME
+rcoulomb                 = 0.9
+
+; van der Waals
+vdw-type                 = Cut-off
+vdw-modifier             = Potential-switch
+rvdw-switch              = 0.89      ;    0.9
+rvdw                     = 0.9
+
+; Apply long range dispersion corrections for Energy and Pressure 
+; YES -- we're doing NPT
+DispCorr                 = EnerPres
+
+fourierspacing           = 0.10
+pme_order                = 4
+ewald_rtol               = 1e-6
+ewald_geometry           = 3d
+epsilon_surface          = 0
+
+
+; Temperature coupling
+tcoupl                   = v-rescale
+nsttcouple               = 1
+tc_grps                  = System
+tau_t                    = 0.5
+ref_t                    = 298.15
+
+; Pressure coupling is on for NPT - we're doing NVT.  Berendsen is recommended for use with position restraints
+pcoupl                   = Berendsen
+pcoupltype               = isotropic                   ; uniform scaling of x-y-z box vectors
+tau_p                    = 2.0                         ; time constant, in ps
+ref_p                    = 1.0                         ; reference pressure (in bar)
+compressibility          = 4.5e-5                      ; isothermal compressibility, bar^-1
+refcoord_scaling         = com
+
+
+; velocity generation
+gen_vel                  = yes
+gen-temp                 = 298.15
+gen-seed                 = 29305 ; need to randomize the seed each time.
+
+; options for bonds
+constraints              = h-bonds  ; we only have C-H bonds here
+; Type of constraint algorithm
+constraint-algorithm     = lincs
+; Highest order in the expansion of the constraint coupling matrix
+lincs-order              = 12
+lincs-iter               = 2
+
+
+; FREE ENERGY CONTROL OPTIONS =
+free-energy   	        = expanded
+calc-lambda-neighbors 	= -1
+sc-alpha 		= 0.5    ;     0.5 
+sc-power 		= 1      ;     keep this at 1 
+sc-sigma 	        = 0.3    ;     0.5
+couple-moltype 		= LIG  ; ligand mol type
+couple-lambda0 		= vdw-q
+couple-lambda1 		= none
+couple-intramol 	= yes
+init-lambda-state	= 0
+
+nstexpanded             = 250  
+nstdhdl                 = 250  ; dhdl snapshot freq  <-- MUST be same as nstexpanded
+dhdl-print-energy 	= total
+nst-transition-matrix 	= 250000
+
+lmc-seed                = 29305 ; should be randomized
+lmc-gibbsdelta          = 1 ; transition only between nearest neighbors, -1 for all possible i->j
+symmetrized-transition-matrix = yes
+
+lmc-stats                       = wang-landau
+lmc-move                        = metropolized-gibbs
+lmc-weights-equil               = wl-delta
+weight-equil-wl-delta           = 0.00001
+init-wl-delta                   = 10.0   ; in units kT -  MRS had 10.0 at first
+separate-dhdl-file              = yes
+wl-scale                        = 0.8
+wl-ratio                        = 0.7
+
+coul-lambdas         = 0.00000 0.02604 0.04954 0.07266 0.09625 0.11928 0.14846 0.19475 0.21921 0.24277 0.27494 0.31449 0.33895 0.36514 0.39350 0.41767 0.44054 0.46516 0.49337 0.52584 0.55849 0.59074 0.62441 0.65765 0.68972 0.72328 0.76352 0.81209 0.84740 0.87643 0.90510 0.94312 0.99608 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000
+vdw-lambdas          = 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.02979 0.05326 0.07368 0.10157 0.12825 0.14752 0.16728 0.18081 0.19531 0.21511 0.23745 0.26141 0.27572 0.29047 0.31417 0.33414 0.35221 0.36758 0.38347 0.40157 0.41532 0.43482 0.45660 0.47791 0.49593 0.51126 0.52634 0.54049 0.55114 0.56332 0.57687 0.59060 0.60098 0.60925 0.62311 0.63086 0.63837 0.64930 0.66012 0.67026 0.67773 0.68561 0.69707 0.70701 0.71634 0.72411 0.73078 0.73996 0.74939 0.75735 0.76557 0.77136 0.77717 0.78563 0.79248 0.80358 0.81186 0.82372 0.83719 0.84936 0.86603 0.88417 0.90746 0.92957 0.95413 1.00000
+fep-lambdas          = 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000
+restraint-lambdas    = 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000 1.00000
+init-lambda-weights  = 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000
+
